@@ -62,6 +62,8 @@ document.addEventListener('DOMContentLoaded', function() {
             checkbox.type = 'checkbox';
             checkbox.value = type;
             checkbox.id = `filetype-${type}`;
+            if (!type.match('xml'))
+              checkbox.checked = 'checked';
 
             const label = document.createElement('label');
             label.htmlFor = `filetype-${type}`;
