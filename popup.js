@@ -18,62 +18,122 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  scanButton.addEventListener('click', function() {
+  scanButton.addEventListener('click', function () {
     statusDiv.textContent = 'Scanning page for CDN links...';
-    
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+  
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
       chrome.scripting.executeScript({
-        target: {tabId: tabs[0].id},
+        target: { tabId: tabs[0].id },
         function: findCdnLinks
-      }, function(results) {
+      }, function (results) {
         if (chrome.runtime.lastError) {
           statusDiv.textContent = 'Error: ' + chrome.runtime.lastError.message;
           return;
         }
-        
+  
         cdnLinks = results[0].result;
         
         if (cdnLinks.length > 0) {
           statusDiv.innerHTML = `Found <span id="linkCount">${cdnLinks.length}</span> CDN links.`;
-          downloadButton.disabled = false;
+          downloadButton.disabled = true;
+          applyFilterButton.disabled = false;
+  
+          // Extract unique file extensions
+          const fileTypes = new Set();
+          cdnLinks.forEach(link => {
+            const parts = link.split('.');
+            if (parts.length > 1) {
+              const ext = parts.pop().split('?')[0].toLowerCase();
+              if (/^[a-z0-9]+$/.test(ext)) { // Ensure it's a valid file extension
+                fileTypes.add(ext);
+              }
+            }
+          });
+  
+          // Populate checklist
+          const checklistDiv = document.getElementById('fileTypeChecklist');
+          checklistDiv.innerHTML = ''; // Clear previous list
+
+          fileTypes.forEach(type => {
+            const div = document.createElement('div');
+            div.classList.add('file-type-option'); // Apply a class for styling
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.value = type;
+            checkbox.id = `filetype-${type}`;
+
+            const label = document.createElement('label');
+            label.htmlFor = `filetype-${type}`;
+            label.textContent = type;
+
+            div.appendChild(checkbox);
+            div.appendChild(label);
+            checklistDiv.appendChild(div);
+          });
+  
         } else {
           statusDiv.textContent = 'No CDN links found on this page.';
-          downloadButton.disabled = true;
+          applyFilterButton.disabled = true;
         }
       });
     });
   });
 
-  downloadButton.addEventListener('click', function() {
+  applyFilterButton.addEventListener('click', function () {
+    const selectedTypes = Array.from(document.querySelectorAll('#fileTypeChecklist input:checked'))
+      .map(checkbox => checkbox.value);
+  
+    if (selectedTypes.length === 0) {
+      statusDiv.textContent = 'Please select at least one file type!';
+      return;
+    }
+  
+    const filteredLinks = cdnLinks.filter(link => {
+      const ext = link.split('.').pop().split('?')[0].toLowerCase();
+      return selectedTypes.includes(ext);
+    });
+  
+    if (filteredLinks.length > 0) {
+      statusDiv.innerHTML = `Filtered <span id="linkCount">${filteredLinks.length}</span> files. Ready to download.`;
+      cdnLinks = filteredLinks;
+      downloadButton.disabled = false;
+    } else {
+      statusDiv.textContent = 'No matching files found!';
+      downloadButton.disabled = true;
+    }
+  });  
+
+  downloadButton.addEventListener('click', function () {
     const folderName = folderNameInput.value || 'cdn_downloads';
-    
+  
     if (cdnLinks.length === 0) {
       statusDiv.textContent = 'No links to download.';
       return;
     }
-    
+  
     statusDiv.textContent = 'Starting downloads...';
     let downloadCount = 0;
-    
+  
     cdnLinks.forEach((link, index) => {
-      // Extract filename from URL
       const filename = link.split('/').pop().split('?')[0];
-      
+  
       chrome.downloads.download({
         url: link,
         filename: `${folderName}/${filename}`,
         conflictAction: 'uniquify'
-      }, function(downloadId) {
+      }, function (downloadId) {
         downloadCount++;
         statusDiv.textContent = `Downloading ${downloadCount}/${cdnLinks.length}...`;
-        
+  
         if (downloadCount === cdnLinks.length) {
           statusDiv.textContent = `All ${cdnLinks.length} files downloaded to folder "${folderName}"!`;
         }
       });
     });
-  });
+  });  
 });
+
 
 function findCdnLinks() {
   const links = document.querySelectorAll('a');

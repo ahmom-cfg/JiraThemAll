@@ -43,6 +43,16 @@
       font-size: 14px;
       color: #172B4D;
     }
+    .file-type-option {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      margin-bottom: 5px;
+    }
+    .file-type-option input[type="checkbox"] {
+      margin-right: 10px;
+      width: auto;
+    }
   </style>
 </head>
 <body>
@@ -52,6 +62,13 @@
     <input type="text" id="folderName">
   </div>
   <button id="scanButton">Scan for CDN Links</button>
+  <div class="input-group">
+    <br>
+    <label>Select file types to download:</label>
+    <br>
+    <div id="fileTypeChecklist"></div>
+  </div>
+  <button id="applyFilterButton" disabled>Apply Filter</button>
   <button id="downloadButton" disabled>Download All Links</button>
   <div id="status">Ready to scan</div>
   <script src="popup.js"></script>
