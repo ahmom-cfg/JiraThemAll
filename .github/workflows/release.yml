@@ -1,0 +1,21 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Create ZIP archive
+        run: git archive --format zip --output JiraThemAll.zip HEAD
+
+      - name: Upload Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: JiraThemAll.zip
