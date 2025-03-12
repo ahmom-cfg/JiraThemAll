@@ -1,4 +1,6 @@
 ```md
+![screenshot](screenshot.png)
+
 # 📌 Installing an Unpacked Chrome/Edge Extension (JiraThemAll)
 
 ## 🔹 Step 1: Open Extensions Page  
