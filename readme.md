@@ -1,4 +1,3 @@
-```md
 ![screenshot](https://github.com/user-attachments/assets/dbd3c063-088b-43d7-b479-fe613b127fe3)
 
 # 📌 Installing an Unpacked Chrome/Edge Extension (JiraThemAll)
@@ -25,4 +24,3 @@
 
 ## ✅ Done!  
 Your **JiraThemAll** extension is now installed and ready to use. 🚀  
-```
