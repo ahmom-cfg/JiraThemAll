@@ -9,7 +9,10 @@ document.addEventListener('DOMContentLoaded', function() {
   // Get the current tab's URL to extract the Jira issue key
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     const url = tabs[0].url;
-    const issueKeyMatch = url.match(/browse\/([A-Z]+-\d+)/);
+    let issueKeyMatch = url.match(/browse\/([A-Z]+-\d+)/);
+    if (!issueKeyMatch) {
+        issueKeyMatch = url.match(/[?&]selectedIssue=([A-Z]+-\d+)/);
+    }
     
     if (issueKeyMatch && issueKeyMatch[1]) {
       folderNameInput.value = issueKeyMatch[1];
