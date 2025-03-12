@@ -1,5 +1,5 @@
 ```md
-![screenshot](screenshot.png)
+![screenshot](images/screenshot.png)
 
 # 📌 Installing an Unpacked Chrome/Edge Extension (JiraThemAll)
 
