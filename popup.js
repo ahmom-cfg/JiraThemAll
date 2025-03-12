@@ -19,6 +19,78 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
       folderNameInput.value = 'cdn_downloads';
     }
+
+    scanForLinks(tabs[0].id);
+  });
+
+  function scanForLinks(tabId) {
+    statusDiv.textContent = 'Scanning page for CDN links...';
+  
+    chrome.scripting.executeScript({
+      target: { tabId: tabId },
+      function: findCdnLinks
+    }, function (results) {
+      if (chrome.runtime.lastError) {
+        statusDiv.textContent = 'Error: ' + chrome.runtime.lastError.message;
+        return;
+      }
+
+      cdnLinks = results[0].result;
+      
+      if (cdnLinks.length > 0) {
+        statusDiv.innerHTML = `Found <span id="linkCount">${cdnLinks.length}</span> CDN links.`;
+        downloadButton.disabled = false;
+        downloadButton.innerHTML = 'Download All Files';
+        applyFilterButton.disabled = false;
+
+        // Extract unique file extensions
+        const fileTypes = new Set();
+        cdnLinks.forEach(link => {
+          const parts = link.split('.');
+          if (parts.length > 1) {
+            const ext = parts.pop().split('?')[0].toLowerCase();
+            if (/^[a-z0-9]+$/.test(ext)) { // Ensure it's a valid file extension
+              fileTypes.add(ext);
+            }
+          }
+        });
+
+        // Populate checklist
+        const checklistDiv = document.getElementById('fileTypeChecklist');
+        checklistDiv.innerHTML = ''; // Clear previous list
+
+        fileTypes.forEach(type => {
+          const div = document.createElement('div');
+          div.classList.add('file-type-option'); // Apply a class for styling
+
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.value = type;
+          checkbox.id = `filetype-${type}`;
+          if (!type.match('xml'))
+            checkbox.checked = 'checked';
+
+          const label = document.createElement('label');
+          label.htmlFor = `filetype-${type}`;
+          label.textContent = type;
+
+          div.appendChild(checkbox);
+          div.appendChild(label);
+          checklistDiv.appendChild(div);
+        });
+
+      } else {
+        statusDiv.textContent = 'No CDN links found on this page.';
+        applyFilterButton.disabled = true;
+        downloadButton.disabled = true;
+      }
+    });
+  }
+
+  scanButton.addEventListener('click', function() {
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+      scanForLinks(tabs[0].id);
+    });
   });
 
   scanButton.addEventListener('click', function () {
@@ -38,7 +110,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (cdnLinks.length > 0) {
           statusDiv.innerHTML = `Found <span id="linkCount">${cdnLinks.length}</span> CDN links.`;
-          downloadButton.disabled = true;
+          downloadButton.disabled = false;
+          downloadButton.innerHTML = 'Download All Files';
           applyFilterButton.disabled = false;
   
           // Extract unique file extensions
@@ -80,6 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
           statusDiv.textContent = 'No CDN links found on this page.';
           applyFilterButton.disabled = true;
+          downloadButton.disabled = true;
         }
       });
     });
@@ -95,14 +169,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   
     const filteredLinks = cdnLinks.filter(link => {
-      const ext = link.split('.').pop().split('?')[0].toLowerCase();
-      return selectedTypes.includes(ext);
+      const tokens = link.split('/');
+      const lastToken = tokens[tokens.length - 1];
+      const ext = lastToken.includes('.') ? lastToken.split('.').pop().split('?')[0].toLowerCase() : '';
+      return selectedTypes.includes(ext) || !lastToken.includes('.');
     });
   
     if (filteredLinks.length > 0) {
       statusDiv.innerHTML = `Filtered <span id="linkCount">${filteredLinks.length}</span> files. Ready to download.`;
       cdnLinks = filteredLinks;
       downloadButton.disabled = false;
+      downloadButton.innerHTML = 'Download Filtered Files';
     } else {
       statusDiv.textContent = 'No matching files found!';
       downloadButton.disabled = true;
