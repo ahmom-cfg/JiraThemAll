@@ -1,21 +1,32 @@
-name: Create Release
+name: Release on Tag
 
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*'  # Triggers when you push a tag like 'v1.0.0'
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Change to 'self-hosted' if using a self-hosted runner
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Move repo contents into a single folder
+        run: |
+          mkdir JiraThemAll
+          mv !(JiraThemAll) JiraThemAll/
+          ls -lah JiraThemAll  # Debugging: Show the contents
+
       - name: Create ZIP archive
-        run: git archive --format zip --output JiraThemAll.zip HEAD
+        run: |
+          cd JiraThemAll
+          zip -r ../JiraThemAll.zip . 
+          cd ..
 
       - name: Upload Release
         uses: softprops/action-gh-release@v1
         with:
           files: JiraThemAll.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
