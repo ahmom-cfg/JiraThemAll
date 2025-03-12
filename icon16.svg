@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <!-- Background -->
+  <rect width="16" height="16" rx="2" fill="#0052CC"/>
+  
+  <!-- Down Arrow -->
+  <path d="M8 3v7" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M5 8l3 3 3-3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- CDN Text -->
+  <text x="8" y="14" font-family="Arial, sans-serif" font-size="5" font-weight="bold" fill="white" text-anchor="middle">CDN</text>
+</svg>

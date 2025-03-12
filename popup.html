@@ -1,0 +1,59 @@
+<!-- popup.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>JiraThemAll</title>
+  <style>
+    body {
+      width: 300px;
+      padding: 10px;
+      font-family: Arial, sans-serif;
+    }
+    button {
+      margin-top: 10px;
+      padding: 8px 12px;
+      background-color: #0052CC;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #0747A6;
+    }
+    #status {
+      margin-top: 10px;
+      color: #505F79;
+      font-size: 14px;
+    }
+    #linkCount {
+      font-weight: bold;
+    }
+    .input-group {
+      margin-bottom: 10px;
+    }
+    input {
+      width: 100%;
+      padding: 6px;
+      box-sizing: border-box;
+      margin-top: 5px;
+    }
+    label {
+      font-size: 14px;
+      color: #172B4D;
+    }
+  </style>
+</head>
+<body>
+  <h2>JiraThemAll</h2>
+  <div class="input-group">
+    <label for="folderName">Folder Name (auto-detected from issue):</label>
+    <input type="text" id="folderName">
+  </div>
+  <button id="scanButton">Scan for CDN Links</button>
+  <button id="downloadButton" disabled>Download All Links</button>
+  <div id="status">Ready to scan</div>
+  <script src="popup.js"></script>
+</body>
+</html>
