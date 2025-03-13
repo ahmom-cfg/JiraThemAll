@@ -1,0 +1,54 @@
+name: Auto Version Bump and Release
+
+on:
+  push:
+    branches:
+      - main  # Change this if needed
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - name: Increment version in manifest.json
+        run: |
+          VERSION=$(jq -r '.version' manifest.json)
+          MAJOR=$(echo $VERSION | cut -d. -f1)
+          MINOR=$(echo $VERSION | cut -d. -f2)
+          NEW_VERSION="$MAJOR.$((MINOR + 1))"
+          jq --arg new_version "$NEW_VERSION" '.version = $new_version' manifest.json > temp.json && mv temp.json manifest.json
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+
+      - name: Commit updated manifest.json
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions@users.noreply.github.com"
+          git add manifest.json
+          git commit -m "Bump version to ${{ env.NEW_VERSION }}"
+          git tag ${{ env.NEW_VERSION }}
+          git push origin main --tags
+
+      - name: Create ZIP package
+        run: |
+          zip -r JiraThemAll.zip .
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.NEW_VERSION }}
+          name: "Release ${{ env.NEW_VERSION }}"
+          body: "New release version ${{ env.NEW_VERSION }}"
+          files: JiraThemAll.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
