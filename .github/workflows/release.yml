@@ -23,7 +23,7 @@ jobs:
 
       - name: Increment version in manifest.json
         run: |
-          VERSION=$(jq -r '.version' manifest.json)
+          VERSION=$(cat manifest.json | grep '"version"' | head -1 | sed -E 's/.*"version": ?"([^"]+).*/\1/')
           MAJOR=$(echo $VERSION | cut -d. -f1)
           MINOR=$(echo $VERSION | cut -d. -f2)
           NEW_VERSION="$MAJOR.$((MINOR + 1))"

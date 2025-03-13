@@ -223,27 +223,31 @@ function findCdnLinks() {
   
   links.forEach(link => {
     const href = link.href;
-    if (href && href.startsWith('https://cdn')) {
-      cdnLinks.push(href);
+    if (href) {
+      if (href.startsWith('https://cdn')) {
+        cdnLinks.push(href);
+      } else if (href.startsWith('https://configura.zendesk.com/attachments')) {
+        cdnLinks.push(href);
+      }
     }
   });
   
   // Also check for images, scripts, and other resources
-  const images = document.querySelectorAll('img');
-  images.forEach(img => {
-    const src = img.src;
-    if (src && src.startsWith('https://cdn')) {
-      cdnLinks.push(src);
-    }
-  });
+  // const images = document.querySelectorAll('img');
+  // images.forEach(img => {
+  //   const src = img.src;
+  //   if (src && src.startsWith('https://cdn')) {
+  //     cdnLinks.push(src);
+  //   }
+  // });
   
-  const scripts = document.querySelectorAll('script');
-  scripts.forEach(script => {
-    const src = script.src;
-    if (src && src.startsWith('https://cdn')) {
-      cdnLinks.push(src);
-    }
-  });
+  // const scripts = document.querySelectorAll('script');
+  // scripts.forEach(script => {
+  //   const src = script.src;
+  //   if (src && src.startsWith('https://cdn')) {
+  //     cdnLinks.push(src);
+  //   }
+  // });
   
   // Remove duplicates
   return [...new Set(cdnLinks)];
