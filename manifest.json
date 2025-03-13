@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "JiraThemAll",
-  "version": "1.3",
+  "version": "1.4",
   "description": "Download all CDN links from Jira pages",
   "permissions": [
     "activeTab",
