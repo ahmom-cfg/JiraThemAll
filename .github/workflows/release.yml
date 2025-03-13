@@ -41,7 +41,7 @@ jobs:
 
       - name: Create ZIP package
         run: |
-          zip -r JiraThemAll.zip .
+          zip -r JiraThemAll.zip . -x ".git/*" ".github/*"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
